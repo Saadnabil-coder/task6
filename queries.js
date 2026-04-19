@@ -163,7 +163,7 @@ const createStoreManager = async () => {
 
         await pool.query('FLUSH PRIVILEGES;');
         
-        console.log('✅ User "store_manager" created and granted SELECT, INSERT, UPDATE permissions');
+        console.log(' User "store_manager" created and granted SELECT, INSERT, UPDATE permissions');
     } catch (error) {
         console.error('Error creating store_manager:', error.message);
         throw error;
@@ -181,7 +181,7 @@ const revokeUpdatePermission = async () => {
         
         await pool.query('FLUSH PRIVILEGES;');
         
-        console.log('✅ UPDATE permission revoked from store_manager');
+        console.log(' UPDATE permission revoked from store_manager');
     } catch (error) {
         console.error('Error revoking UPDATE:', error.message);
         throw error;
@@ -199,7 +199,7 @@ const grantDeleteOnSales = async () => {
         
         await pool.query('FLUSH PRIVILEGES;');
         
-        console.log('✅ DELETE permission granted on Sales table only');
+        console.log('DELETE permission granted on Sales table only');
     } catch (error) {
         console.error('Error granting DELETE on Sales:', error.message);
         throw error;
