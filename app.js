@@ -1,83 +1,146 @@
 const express = require('express');
-const connection = require('./db');
-const { createDatabaseAndTables, otherQueries } = require('./queries');
+const {
+    createTables,
+    addCategory,
+    dropCategory,
+    modifyContact,
+    addNotNull,
+    insertData,
+    updateBread,
+    deleteEggs,
+    totalSold,
+    highestStock,
+    suppliersF,
+    unsoldProducts,
+    salesDetails
+} = require('./queries');
 
 const app = express();
 app.use(express.json());
 
-app.get('/setup', (req, res) => {
-    connection.query(createDatabaseAndTables, (err) => {
-        if (err) return res.send(err);
+// ====================== Setup Routes ======================
 
-        connection.query(otherQueries, (err2) => {
-            if (err2) return res.send(err2);
-
-            res.send('Database and data created successfully');
-        });
-    });
+app.get('/create-tables', async (req, res) => {
+    try {
+        await createTables();
+        res.send('Tables created successfully');
+    } catch (err) {
+        res.status(500).send('Error: ' + err.message);
+    }
 });
 
+app.get('/add-category', async (req, res) => {
+    try {
+        await addCategory();
+        res.send('Category column added successfully');
+    } catch (err) {
+        res.status(500).send('Error: ' + err.message);
+    }
+});
 
-app.get('/total-sales', (req, res) => {
-    const q = `
-    SELECT ProductID, SUM(QuantitySold) AS TotalSold
-    FROM Sales
-    GROUP BY ProductID
-    `;
-    connection.query(q, (err, result) => {
-        if (err) return res.send(err);
+app.get('/drop-category', async (req, res) => {
+    try {
+        await dropCategory();
+        res.send('Category column dropped successfully');
+    } catch (err) {
+        res.status(500).send('Error: ' + err.message);
+    }
+});
+
+app.get('/modify-contact', async (req, res) => {
+    try {
+        await modifyContact();
+        res.send('ContactNumber modified successfully');
+    } catch (err) {
+        res.status(500).send('Error: ' + err.message);
+    }
+});
+
+app.get('/add-not-null', async (req, res) => {
+    try {
+        await addNotNull();
+        res.send('NOT NULL constraint added successfully');
+    } catch (err) {
+        res.status(500).send('Error: ' + err.message);
+    }
+});
+
+app.get('/insert-data', async (req, res) => {
+    try {
+        await insertData();
+        res.send('Data inserted successfully');
+    } catch (err) {
+        res.status(500).send('Error: ' + err.message);
+    }
+});
+
+app.get('/update-bread', async (req, res) => {
+    try {
+        await updateBread();
+        res.send('Bread price updated successfully');
+    } catch (err) {
+        res.status(500).send('Error: ' + err.message);
+    }
+});
+
+app.get('/delete-eggs', async (req, res) => {
+    try {
+        await deleteEggs();
+        res.send('Eggs deleted successfully');
+    } catch (err) {
+        res.status(500).send('Error: ' + err.message);
+    }
+});
+
+// ====================== Query Routes ======================
+
+app.get('/total-sales', async (req, res) => {
+    try {
+        const result = await totalSold();
         res.json(result);
-    });
+    } catch (err) {
+        res.status(500).send('Error: ' + err.message);
+    }
 });
 
-
-app.get('/highest-stock', (req, res) => {
-    const q = `
-    SELECT * FROM Products
-    ORDER BY StockQuantity DESC
-    LIMIT 1
-    `;
-    connection.query(q, (err, result) => {
-        if (err) return res.send(err);
+app.get('/highest-stock', async (req, res) => {
+    try {
+        const result = await highestStock();
         res.json(result);
-    });
+    } catch (err) {
+        res.status(500).send('Error: ' + err.message);
+    }
 });
 
-
-app.get('/suppliers-f', (req, res) => {
-    connection.query(
-        "SELECT * FROM Suppliers WHERE SupplierName LIKE 'F%'",
-        (err, result) => {
-            if (err) return res.send(err);
-            res.json(result);
-        }
-    );
-});
-
-
-app.get('/unsold-products', (req, res) => {
-    const q = `
-    SELECT * FROM Products
-    WHERE ProductID NOT IN (SELECT ProductID FROM Sales)
-    `;
-    connection.query(q, (err, result) => {
-        if (err) return res.send(err);
+app.get('/suppliers-f', async (req, res) => {
+    try {
+        const result = await suppliersF();
         res.json(result);
-    });
+    } catch (err) {
+        res.status(500).send('Error: ' + err.message);
+    }
 });
 
-app.get('/sales-details', (req, res) => {
-    const q = `
-    SELECT p.ProductName, s.SaleDate
-    FROM Sales s
-    JOIN Products p ON s.ProductID = p.ProductID
-    `;
-    connection.query(q, (err, result) => {
-        if (err) return res.send(err);
+app.get('/unsold-products', async (req, res) => {
+    try {
+        const result = await unsoldProducts();
         res.json(result);
-    });
+    } catch (err) {
+        res.status(500).send('Error: ' + err.message);
+    }
 });
 
-app.listen(3000, () => {
-    console.log('Server running on port 3000');
+app.get('/sales-details', async (req, res) => {
+    try {
+        const result = await salesDetails();
+        res.json(result);
+    } catch (err) {
+        res.status(500).send('Error: ' + err.message);
+    }
+});
+
+// Start Server
+const PORT = 3000;
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
 });
