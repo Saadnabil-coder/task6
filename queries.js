@@ -145,19 +145,82 @@ const salesDetails = async () => {
     return result;
 };
 
-// Export all functions
+// 14. Create user “store_manager” and give SELECT, INSERT, UPDATE permissions
+const createStoreManager = async () => {
+    try {
+        
+        await pool.query(`
+            CREATE USER IF NOT EXISTS 'store_manager'@'localhost' 
+            IDENTIFIED BY 'password123';
+        `);
+
+
+        await pool.query(`
+            GRANT SELECT, INSERT, UPDATE 
+            ON retail_store.* 
+            TO 'store_manager'@'localhost';
+        `);
+
+        await pool.query('FLUSH PRIVILEGES;');
+        
+        console.log('✅ User "store_manager" created and granted SELECT, INSERT, UPDATE permissions');
+    } catch (error) {
+        console.error('Error creating store_manager:', error.message);
+        throw error;
+    }
+};
+
+// 15. Revoke UPDATE permission from “store_manager”
+const revokeUpdatePermission = async () => {
+    try {
+        await pool.query(`
+            REVOKE UPDATE 
+            ON retail_store.* 
+            FROM 'store_manager'@'localhost';
+        `);
+        
+        await pool.query('FLUSH PRIVILEGES;');
+        
+        console.log('✅ UPDATE permission revoked from store_manager');
+    } catch (error) {
+        console.error('Error revoking UPDATE:', error.message);
+        throw error;
+    }
+};
+
+// 16. Grant DELETE permission only on the Sales table
+const grantDeleteOnSales = async () => {
+    try {
+        await pool.query(`
+            GRANT DELETE 
+            ON retail_store.Sales 
+            TO 'store_manager'@'localhost';
+        `);
+        
+        await pool.query('FLUSH PRIVILEGES;');
+        
+        console.log('✅ DELETE permission granted on Sales table only');
+    } catch (error) {
+        console.error('Error granting DELETE on Sales:', error.message);
+        throw error;
+    }
+};
+
 module.exports = {
     createTables,
-    addCategory,
-    dropCategory,
-    modifyContact,
-    addNotNull,
+    addCategoryColumn,
+    dropCategoryColumn,
+    changeContactNumberType,
+    addNotNullToProductName,
     insertData,
-    updateBread,
+    updateBreadPrice,
     deleteEggs,
-    totalSold,
-    highestStock,
-    suppliersF,
-    unsoldProducts,
-    salesDetails
+    getTotalQuantitySold,
+    getProductWithHighestStock,
+    getSuppliersStartingWithF,
+    getUnsoldProducts,
+    getAllSalesWithProductName,
+    createStoreManager,
+    revokeUpdatePermission,
+    grantDeleteOnSales
 };
