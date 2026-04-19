@@ -18,7 +18,7 @@ const {
 const app = express();
 app.use(express.json());
 
-// ====================== Setup Routes ======================
+
 
 app.get('/create-tables', async (req, res) => {
     try {
@@ -139,7 +139,36 @@ app.get('/sales-details', async (req, res) => {
     }
 });
 
-// Start Server
+app.get('/create-store-manager', async (req, res) => {
+    try {
+        await queries.createStoreManager();
+        res.send(' Store Manager user created successfully with SELECT, INSERT, UPDATE permissions');
+    } catch (err) {
+        res.status(500).send('Error: ' + err.message);
+    }
+});
+
+
+app.get('/revoke-update', async (req, res) => {
+    try {
+        await queries.revokeUpdatePermission();
+        res.send(' UPDATE permission has been revoked from store_manager');
+    } catch (err) {
+        res.status(500).send('Error: ' + err.message);
+    }
+});
+
+
+app.get('/grant-delete-sales', async (req, res) => {
+    try {
+        await queries.grantDeleteOnSales();
+        res.send(' DELETE permission granted on Sales table only');
+    } catch (err) {
+        res.status(500).send('Error: ' + err.message);
+    }
+});
+
+
 const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
